@@ -1,0 +1,28 @@
+#/usr/bin/sh
+
+is(){
+    echo `curl --connect-timeout 5 --max-time 5 -s "http://$1/readme.html" -L | grep -i 'matt mullenweg' | wc -l`
+}
+
+process(){
+    s=`echo $1 | sed -e 's/^.*,//g'`
+    if (( `is $s` > 0 )); then
+        echo "Found $s as wp!"
+        echo "$1" >> wp
+    fi
+}
+
+i=0
+while read s; do
+    let "i++"
+
+    if (( $i < 1026 )); then
+        continue
+    fi
+
+    r="$s"
+    s=`echo $s | sed -e 's/^.*,//g'`
+    echo "currently at $s ($i)"
+    process $r
+    echo $i > index
+done <top-1m.csv
